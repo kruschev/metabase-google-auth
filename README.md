@@ -3,7 +3,7 @@
 Module for Metabase with Google Authentication login.
 
 # How to use
-Download repo as zip file, extract all files into the folder of your codes
+Download repo as zip file, extract all files into the folder of your codes or site-packages (recommended).
 ### Install dependencies
 pip install -r requirements.txt
 
