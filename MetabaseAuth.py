@@ -45,23 +45,44 @@ def login(domain):
     return driver
 
 
+def load_cookie():
+    with open('token.txt') as f:
+        token = json.load(f)
+        if time.time() < token['expiry']:
+            return token['value']
+        else:
+            print('Token has expired! Run MetabaseAuth.get_cookie() for new token!')
+            return
+
+
 def get_cookie(domain):
     driver = login(domain)
 
-    token = ''
+    token = {'value': '', 'expiry': ''}
     for cookie in driver.get_cookies():
         if cookie['name'] == 'metabase.SESSION':
-            token = cookie['value']
+            token['value'] = cookie['value']
+            token['expiry'] = cookie['expiry']
+
+            with open('token.txt', 'w') as f:
+                json.dump(token, f)
     
     driver.close()
 
-    return token
+    return token['value']
+
+
+def load_params(question_id):
+    with open('params.txt') as f:
+        params_dict = json.load(f)
+        return params_dict[str(question_id)]
 
 
 def get_params(domain, question_id):
     driver = login(domain)
     query_url = 'https://{}/question/{}'.format(domain, question_id)
-
+    
+    time.sleep(3)
     driver.get(query_url)
 
     while True:
@@ -73,9 +94,16 @@ def get_params(domain, question_id):
                     if 'parameters' in request_payload:
                         params = json.loads(request_payload)['parameters']
                         if len(params) != 0:
+                            with open('params.txt', 'r', encoding='utf-8') as fr:
+                                params_dict = json.load(fr)
+                            with open('params.txt', 'w', encoding='utf-8') as fw:    
+                                params_dict[question_id] = params
+                                json.dump(params_dict, fw)
+
                             driver.close()
                             return params
-                except:
+                except Exception as e:
+                    #print(e)
                     continue
 
 
@@ -94,3 +122,5 @@ def query(domain, token, question_id, params='[]', export=False):
 
 def params_formatting(params):
     return str(params).replace("'",'"')
+
+
