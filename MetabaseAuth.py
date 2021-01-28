@@ -14,14 +14,17 @@ import json
 
 import config
 
+import os, inspect
+path = os.path.dirname(inspect.getfile(config))
 
 def login(domain):
     driver = webdriver.Chrome(ChromeDriverManager().install())
-    url = 'https://{}/auth/login?redirect=%2F'.format(domain)
+    url = 'https://{}'.format(domain)
     driver.get(url)
 
     window_before = driver.window_handles[0]
 
+    time.sleep(3)
     driver.find_elements_by_xpath("//*[contains(text(), 'Sign in with Google')]")[0].click()
 
     window_after = driver.window_handles[1]
@@ -46,13 +49,18 @@ def login(domain):
 
 
 def load_cookie():
-    with open('token.txt') as f:
-        token = json.load(f)
-        if time.time() < token['expiry']:
-            return token['value']
-        else:
-            print('Token has expired! Run MetabaseAuth.get_cookie() for new token!')
-            return
+    path_token = path + '\\token.txt'
+    try:
+        with open(path_token) as f:
+            token = json.load(f)
+            if time.time() < token['expiry']:
+                return token['value']
+            else:
+                print('Token has expired! Run MetabaseAuth.get_cookie() for new token!')
+                return
+    except:
+        print('token.txt does not exist or is empty')
+        return
 
 
 def get_cookie(domain):
@@ -63,8 +71,9 @@ def get_cookie(domain):
         if cookie['name'] == 'metabase.SESSION':
             token['value'] = cookie['value']
             token['expiry'] = cookie['expiry']
-
-            with open('token.txt', 'w') as f:
+            
+            path_token = path + '\\token.txt'
+            with open(path_token, 'w') as f:
                 json.dump(token, f)
     
     driver.close()
@@ -73,10 +82,14 @@ def get_cookie(domain):
 
 
 def load_params(question_id):
-    with open('params.txt') as f:
-        params_dict = json.load(f)
-        return params_dict[str(question_id)]
-
+    path_params = path + '\\params.txt'
+    try:
+        with open(path_params) as f:
+            params_dict = json.load(f)
+            return params_dict[str(question_id)]
+    except:
+        print('params.txt does not exist or does not contain question {}'.format(question_id))
+        return
 
 def get_params(domain, question_id):
     driver = login(domain)
@@ -94,9 +107,10 @@ def get_params(domain, question_id):
                     if 'parameters' in request_payload:
                         params = json.loads(request_payload)['parameters']
                         if len(params) != 0:
-                            with open('params.txt', 'r', encoding='utf-8') as fr:
+                            path_params = path + '\\params.txt'
+                            with open(path_params, 'r', encoding='utf-8') as fr:
                                 params_dict = json.load(fr)
-                            with open('params.txt', 'w', encoding='utf-8') as fw:    
+                            with open(path_params, 'w', encoding='utf-8') as fw:    
                                 params_dict[question_id] = params
                                 json.dump(params_dict, fw)
 
@@ -107,11 +121,11 @@ def get_params(domain, question_id):
                     continue
 
 
-def query(domain, token, question_id, params='[]', export=False):
+def query(domain, cookie, question_id, params='[]', export=False):
     params = str(params).replace("'",'"')
     res = requests.post('https://{}/api/card/{}/query/json?parameters={}'.format(domain, question_id, params),
                         headers = {'Content-Type': 'application/json',
-                                   'X-Metabase-Session': token
+                                   'X-Metabase-Session': cookie
                                   }
                         )
     if export:
