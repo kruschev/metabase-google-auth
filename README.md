@@ -22,7 +22,6 @@ The session cookie will be stored in token.txt and can be reused until expiratio
 Example: get the results for question ID 12345, convert into a DataFrame and export to csv
 ```python
 import MetabaseAuth
-import config
 
 domain = 'metabase.xxxxx.xx'
 cookie = MetabaseAuth.get_cookie(domain)
@@ -59,20 +58,20 @@ Example of a returned params:
   'value': '111'}]
 ```
 #### Convert params to string
-We can convert the params to a parsable string, modify the values and pass it to another query call.
+We can convert params to a parsable string, modify the values and pass it to another query call.
 ```python
 params_str = MetabaseAuth.params_formatting(params)
 ```
 
-### Loading saved cookie and params
-Load a saved cookie by
+### Load saved cookie and params
+Load saved cookie by
 ```python
 cookie = MetabaseAuth.load_cookie()
 ```
 If cookie has expired you will be prompted to run get_cookie().
 
 
-Running get_params(question_id) will save the params for that question in params.txt . Load a saved params by
+Running get_params(question_id) will save the params for that question in params.txt . Load saved params by
 ```python
 params = MetabaseAuth.load_params(question_id)
 ```
