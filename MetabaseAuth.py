@@ -91,11 +91,13 @@ def load_params(question_id):
         print('params.txt does not exist or does not contain question {}'.format(question_id))
         return
 
-def get_params(domain, question_id):
-    driver = login(domain)
+def get_params(domain, cookie, question_id):
+    driver = webdriver.Chrome(ChromeDriverManager().install())
+    url = 'https://{}'.format(domain)
+    driver.get(url)
+
+    driver.add_cookie({'name': 'metabase.SESSION', 'value': cookie, 'domain': domain})
     query_url = 'https://{}/question/{}'.format(domain, question_id)
-    
-    time.sleep(3)
     driver.get(query_url)
 
     while True:
@@ -121,6 +123,10 @@ def get_params(domain, question_id):
                     continue
 
 
+def params_formatting(params):
+    return str(params).replace("'",'"')
+
+
 def query(domain, cookie, question_id, params='[]', export=False):
     params = str(params).replace("'",'"')
     res = requests.post('https://{}/api/card/{}/query/json?parameters={}'.format(domain, question_id, params),
@@ -132,9 +138,3 @@ def query(domain, cookie, question_id, params='[]', export=False):
         pd.DataFrame(res.json()).to_csv('{}.csv'.format(question_id), index=False)
 
     return pd.DataFrame(res.json())
-
-
-def params_formatting(params):
-    return str(params).replace("'",'"')
-
-
