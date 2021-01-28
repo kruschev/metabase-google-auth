@@ -3,19 +3,20 @@
 Module for Metabase with Google Authentication login.
 
 # How to use
+Download repo as zip file, extract all files into the folder of your codes
 ### Install dependencies
 pip install -r requirements.txt
 
 ### Setup login info
 Edit config.py with your login email and password.
 
-Then get session token by
+Then get session cookie by
 
 ```python
 MetabaseAuth.get_cookie(domain)
 ```
-If 2-step authentication is enabled you need to grant access using your phone.
-The session token can be stored and reuse until expiration.
+If 2-step verification is enabled you need to grant access using your phone.
+The session cookie will be stored in token.txt and can be reused until expiration.
 
 ### Query unfiltered question into DataFrame
 Example: get the results for question ID 12345, convert into a DataFrame and export to csv
@@ -24,9 +25,9 @@ import MetabaseAuth
 import config
 
 domain = 'metabase.xxxxx.xx'
-token = MetabaseAuth.get_cookie(domain)
+cookie = MetabaseAuth.get_cookie(domain)
 
-df = MetabaseAuth.query(domain, token, 12345, export=True)
+df = MetabaseAuth.query(domain, cookie, 12345, export=True)
 ```
 
 ### Query filtered question
@@ -40,7 +41,7 @@ Example: query a filtered question with ID 12345
 ```python
 params = MetabaseAuth.get_params(domain, question_id)
 
-df = MetabaseAuth.query(domain, token, 12345, params=params)
+df = MetabaseAuth.query(domain, cookie, 12345, params=params)
 ```
 
 ### Modify params
@@ -61,4 +62,17 @@ Example of a returned params:
 We can convert the params to a parsable string, modify the values and pass it to another query call.
 ```python
 params_str = MetabaseAuth.params_formatting(params)
+```
+
+### Loading saved cookie and params
+Load a saved cookie by
+```python
+cookie = MetabaseAuth.load_cookie()
+```
+If cookie has expired you will be prompted to run get_cookie().
+
+
+Running get_params(question_id) will save the params for that question in params.txt . Load a saved params by
+```python
+params = MetabaseAuth.load_params(question_id)
 ```
