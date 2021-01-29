@@ -32,13 +32,13 @@ df = MetabaseAuth.query(domain, cookie, 12345, export=True)
 ### Query filtered question
 For questions with filters, first we need to obtain the format of the question's parameters request. Get the params as a list by
 ```python
-params = MetabaseAuth.get_params(domain, question_id)
+params = MetabaseAuth.get_params(domain, cookie, question_id)
 ```
-This will open the login page again and navigate to the question page. To get the params, put some values into the filters and click run on Metabase.
+This will open the browser and navigate to the question page. To get the params, put some values into the filters and click run on Metabase.
 
 Example: query a filtered question with ID 12345
 ```python
-params = MetabaseAuth.get_params(domain, question_id)
+params = MetabaseAuth.get_params(domain, cookie, question_id)
 
 df = MetabaseAuth.query(domain, cookie, 12345, params=params)
 ```
