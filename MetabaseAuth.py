@@ -127,14 +127,27 @@ def params_formatting(params):
     return str(params).replace("'",'"')
 
 
-def query(domain, cookie, question_id, params='[]', export=False):
-    params = str(params).replace("'",'"')
-    res = requests.post('https://{}/api/card/{}/query/json?parameters={}'.format(domain, question_id, params),
+def get_colnames(domain, cookie, question_id):
+    cols = requests.get('https://{}/api/card/{}'.format(domain, question_id),
                         headers = {'Content-Type': 'application/json',
                                    'X-Metabase-Session': cookie
-                                  }
+                                   }
                         )
-    if export:
-        pd.DataFrame(res.json()).to_csv('{}.csv'.format(question_id), index=False)
+    return [col['name'] for col in cols.json()['result_metadata']]
+    
 
-    return pd.DataFrame(res.json())
+def query(domain, cookie, question_id, params='[]', ignore_cache=False, export=False):
+    #ignore_cache = str(ignore_cache).lower()
+    params = str(params).replace("'",'"')
+    res = requests.post('https://{}/api/card/{}/query/json?ignore_cache={}&parameters={}'.format(domain, question_id, ignore_cache, params),
+                        headers = {'Content-Type': 'application/json',
+                                   'X-Metabase-Session': cookie
+                                   }
+                        )
+    
+    df = pd.DataFrame(res.json())
+    
+    if export:
+        df.to_csv('{}.csv'.format(question_id), index=False)
+
+    return df
