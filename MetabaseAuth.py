@@ -39,11 +39,11 @@ def login(domain):
     driver.find_elements_by_class_name("VfPpkd-RLmnJb")[0].click()
 
     driver.switch_to.window(window_before)
-
+    
+    current_url = driver.current_url
     timeout = 300
     element = WebDriverWait(driver, timeout).until(
-                    EC.presence_of_element_located((By.CLASS_NAME, "sc-bwzfXH"))
-    )
+                    EC.url_changes(current_url))
 
     return driver
 
@@ -68,6 +68,7 @@ def get_cookie(domain):
 
     token = {'value': '', 'expiry': ''}
     for cookie in driver.get_cookies():
+        print(cookie)
         if cookie['name'] == 'metabase.SESSION':
             token['value'] = cookie['value']
             token['expiry'] = cookie['expiry']
