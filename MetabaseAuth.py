@@ -31,12 +31,12 @@ def login(domain):
     driver.switch_to.window(window_after)
 
     driver.find_elements_by_class_name("whsOnd")[0].send_keys(config.email)
-    driver.find_elements_by_class_name("VfPpkd-RLmnJb")[0].click()
+    driver.find_elements_by_class_name("VfPpkd-vQzf8d")[0].click()
 
     time.sleep(3)
 
     driver.find_elements_by_class_name("whsOnd")[0].send_keys(config.password)
-    driver.find_elements_by_class_name("VfPpkd-RLmnJb")[0].click()
+    driver.find_elements_by_class_name("VfPpkd-vQzf8d")[0].click()
 
     driver.switch_to.window(window_before)
     
