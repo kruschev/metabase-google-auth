@@ -53,11 +53,12 @@ def load_cookie():
     try:
         with open(path_token) as f:
             token = json.load(f)
-            if time.time() < token['expiry']:
-                return token['value']
-            else:
-                print('Token has expired! Run MetabaseAuth.get_cookie() for new token!')
-                return
+            return token['value']
+##            if time.time() < token['expiry']:
+##                return token['value']
+##            else:
+##                print('Token has expired! Run MetabaseAuth.get_cookie() for new token!')
+##                return
     except:
         print('token.txt does not exist or is empty')
         return
@@ -68,10 +69,9 @@ def get_cookie(domain):
 
     token = {'value': '', 'expiry': ''}
     for cookie in driver.get_cookies():
-        print(cookie)
         if cookie['name'] == 'metabase.SESSION':
             token['value'] = cookie['value']
-            token['expiry'] = cookie['expiry']
+            #token['expiry'] = cookie['expiry']
             
             path_token = path + '\\token.txt'
             with open(path_token, 'w') as f:
